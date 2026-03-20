@@ -1,0 +1,23 @@
+# python
+__pycache__/
+*.pyc
+
+# dataset
+final_dataset/
+robust_pipeline/
+bing_dataset/
+dataset_raw/
+
+# model weights (optional — your choice)
+*.keras
+*.h5
+
+# node
+node_modules/
+
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
