@@ -1,23 +1,61 @@
-# python
+# =========================
+# PYTHON
+# =========================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# dataset
-final_dataset/
-robust_pipeline/
-bing_dataset/
-dataset_raw/
+# =========================
+# DATASETS (VERY IMPORTANT)
+# =========================
+workspace/final_dataset/
+workspace/robust_pipeline/
+workspace/bing_dataset/
+workspace/dataset_raw/
 
-# model weights (optional — your choice)
+# =========================
+# MODEL WEIGHTS
+# =========================
 *.keras
 *.h5
+*.pt
 
-# node
+# =========================
+# NODE / FRONTEND
+# =========================
 node_modules/
+frontend/node_modules/
 
-# logs
+frontend/dist/
+frontend/dist-ssr/
+backend/node_modules/
+
+# =========================
+# LOGS
+# =========================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# OS
+# =========================
+# ENV / LOCAL CONFIG
+# =========================
+.env
+*.local
+
+# =========================
+# EDITOR / OS
+# =========================
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

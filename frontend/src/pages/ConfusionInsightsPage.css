@@ -1,0 +1,89 @@
+.confusion-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.insights-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .insights-layout {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.chart-section {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.bar-chart-container {
+    margin-top: 1rem;
+}
+
+.insights-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.insight-card {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.priority-high {
+    border-left: 4px solid var(--danger);
+}
+
+.priority-high .insight-icon {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.direction-card {
+    border-left: 4px solid var(--color-primary);
+}
+
+.direction-card .insight-icon {
+    color: var(--color-primary);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.insight-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.insight-content h4 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.insight-content p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
