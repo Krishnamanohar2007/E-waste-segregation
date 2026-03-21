@@ -1,395 +1,158 @@
-# EcoSort AI — Intelligent E-Waste Segregation and Recycling Management System
+﻿# EcoSort AI — E-Waste Segregation and Recycling Management System
 
-> An end-to-end AI-powered system for classifying electronic waste, assessing environmental hazards, and delivering recycling intelligence through a production-grade microservice architecture.
+> A complete AI-driven system for automatic electronic waste classification, hazard analysis, and recycling intelligence.
 
----
+## Table of Contents
 
-## Problem Statement
+- [Project Summary](#project-summary)
+- [Architecture](#architecture)
+- [Implementation Details](#implementation-details)
+  - [ML Microservice](#ml-microservice)
+  - [Backend API](#backend-api)
+  - [Frontend](#frontend)
+- [Datasets & Training](#datasets--training)
+- [Analytics & History](#analytics--history)
+- [API Endpoints](#api-endpoints)
+- [Setup and Run](#setup-and-run)
+- [Testing](#testing)
+- [Future Enhancements](#future-enhancements)
+- [License](#license)
 
-Electronic waste (e-waste) is the fastest-growing solid waste stream in the world, generating over **62 million tonnes annually** as of 2023 (Global E-Waste Monitor). Less than 20% of this is formally recycled. The remaining 80% is either landfilled, incinerated, or informally processed — releasing toxic heavy metals such as lead, cadmium, and mercury into soil and groundwater, causing irreversible environmental and public health damage.
+## Project Summary
 
-A core challenge in e-waste management is **accurate device identification at the point of disposal**. Without knowing what a device is, recyclers cannot determine its metal composition, hazard level, or correct processing method. Manual sorting is slow, error-prone, and unscalable.
+EcoSort AI is an e-waste classification and recycling assistant. It takes an uploaded image of a discarded device, uses a TensorFlow MobileNetV2 model to classify into one of 10 e-waste categories, enriches the response with domain knowledge, and stores the prediction history with reliability analytics.
 
-There is a critical need for an **automated, AI-driven segregation system** that can identify e-waste devices from images, assess their environmental risk, and guide users and recyclers toward responsible disposal.
+Supported classes: `Battery`, `Keyboard`, `Microwave`, `Mobile`, `Mouse`, `PCB`, `Player`, `Printer`, `Television`, `Washing Machine`.
 
----
+## Architecture
 
-## Project Objective
+- **ML microservice** (FastAPI + TensorFlow), port `8000`
+- **Backend API** (Node.js + Express), port `5000`
+- **Frontend** (React + TypeScript + Vite), default Vite port `5173`
+- **Database** MongoDB local `27017`
 
-EcoSort AI addresses this problem by delivering:
+## Implementation Details
 
-- **Automated device classification** from images across 10 e-waste categories using deep learning
-- **Environmental intelligence** — hazard level assessment, metal composition breakdown, and environmental impact analysis per device
-- **Recycling guidance** — recommended processing methods, reuse potential, and user disposal instructions
-- **Prediction reliability tracking** — confidence-tiered responses and confusion trend analytics to monitor and improve model performance over time
-- **Persistent prediction history** — MongoDB-backed logging of all predictions to support future active learning and audit trails
+### ML Microservice
 
----
+Path: `workspace/ml_server.py`
 
-## System Architecture
+- Loads `workspace/ewaste_model_robust_v1.keras`
+- Uses `workspace/ewaste_knowledge.py` for hazard, metals, recyclability, environmental impact, and user guidance.
+- Endpoint: `POST /predict` (field: `file`)
+- Confidence tiers: `strong` (>=0.75), `moderate` (0.45-0.74), `weak` (<0.45)
+- Returns predicted class, confidence, top alternatives, knowledge metadata, and advisory text.
 
-The system is built as a **multi-layer microservice architecture** with clear separation of concerns across five layers.
+### Backend API
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT / USER                        │
-│              (Image Upload via HTTP POST)                   │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────────┐
-│              Node.js Backend API  (Port 5000)               │
-│   Express · Multer · Mongoose · Axios                       │
-│   Routes: /api/predict  /api/history                        │
-│           /api/analytics  /api/confusion                    │
-└──────┬──────────────────────────────────────┬───────────────┘
-       │ HTTP (multipart/form-data)            │ MongoDB
-┌──────▼──────────────────┐     ┌─────────────▼──────────────┐
-│  FastAPI ML Microservice │     │   MongoDB  (ewasteDB)      │
-│  (Port 8000)             │     │   Collection: predictions  │
-│  TensorFlow · PIL        │     │   Stores full prediction   │
-│  MobileNetV2 Backbone    │     │   payload + alternatives   │
-│  ewaste_knowledge.py     │     └────────────────────────────┘
-└─────────────────────────┘
-```
+Path: `backend/`
 
-### Layer Breakdown
+- `server.js`: app setup, CORS, routes
+- `backend/routes/*`: Express routes for predict/history/analytics/confusion
+- `backend/controllers/*`: controllers for business logic
+- `backend/services/mlService.js`: proxy to `http://localhost:8000/predict`
+- `backend/models/Prediction.js`: Mongoose schema
+- `backend/config/db.js`: MongoDB connection
 
-**1. ML Training Pipeline**
-Offline training pipeline (`train_pro.py`) using MobileNetV2 with two-phase transfer learning. Produces `ewaste_model_robust_v1.keras`.
+Behavior:
+- `POST /api/predict` handles `multipart/form-data` field `image`, forwards to FastAPI, saves payload to MongoDB, returns full payload.
+- `GET /api/history` returns 20 latest predictions sorted by createdAt.
+- `GET /api/analytics` returns model reliability numbers and tier breakdown.
+- `GET /api/confusion` returns weak prediction confusion-trend mapping.
 
-**2. FastAPI ML Microservice** (`ml_server.py`)
-Loads the trained model and serves predictions over HTTP. Applies confidence thresholds to classify each prediction as `strong`, `moderate`, or `weak`. Enriches predictions with domain knowledge from `ewaste_knowledge.py`.
+### Frontend
 
-**3. Node.js Backend API Layer** (`backend/`)
-Acts as the orchestration layer. Receives image uploads from clients, forwards them to the ML microservice via `mlService.js`, persists results to MongoDB, and exposes analytics endpoints.
+Path: `frontend/`
 
-**4. MongoDB Prediction Storage**
-Stores the complete prediction payload — device, confidence, hazard, metals, recyclability, alternatives, and image name — with timestamps for every inference request.
+- React + TypeScript + Vite app.
+- Main service file: `frontend/src/services/api.ts`.
+- Pages: `PredictPage.tsx`, `HistoryPage.tsx`, `AnalyticsPage.tsx`, `ConfusionInsightsPage.tsx`.
+- Sends image to `POST /api/predict` and reads analytics/history/confusion endpoints.
 
-**5. Analytics Engine**
-Two dedicated controllers compute live model reliability metrics (`analyticsController.js`) and device confusion trends (`confusionController.js`) from the stored prediction history.
+## Datasets & Training
 
-**6. Knowledge Intelligence Layer** (`ewaste_knowledge.py`)
-A structured domain knowledge base that maps each device class to detailed environmental and recycling metadata, injected into every prediction response.
+Workspace structure:
 
----
+- `workspace/final_dataset/{train,val,test}/{class}`
+- `workspace/robust_pipeline/bulk_bing_crawler.py` collects web images
+- `workspace/robust_pipeline/prepare_robust_dataset.py` merges, dedups, split
+- `workspace/train_pro.py` two-phase MobileNetV2 transfer learning
+- `workspace/evaluate_model.py` classification report + confusion matrix
 
-## Dataset Description
+## Analytics & History
 
-The dataset covers **10 e-waste device categories**: Battery, Keyboard, Microwave, Mobile, Mouse, PCB, Player, Printer, Television, and Washing Machine.
+- Analytics endpoint computes:
+  - total predictions
+  - strong/moderate/weak counts and weak rate
+  - reliability score
+- Confusion endpoint: frequent misclassifications among weak predictions
+- History persistence supports active learning and audit.
 
-### Collection Strategy
+## API Endpoints
 
-| Source | Description |
-|--------|-------------|
-| Processed base dataset | Curated images per class, manually cleaned and verified |
-| Bing image crawler | `bulk_bing_crawler.py` — automated web crawling using 5 domain-specific keyword variations per class (e.g. *"e-waste battery scrap"*, *"damaged mobile phone"*), targeting 60 images per keyword |
-| Dataset merging | `prepare_robust_dataset.py` merges both sources, deduplicates, and re-splits |
+- ML service: `POST http://localhost:8000/predict`
+- Backend:
+  - `POST http://localhost:5000/api/predict` (image upload)
+  - `GET http://localhost:5000/api/history`
+  - `GET http://localhost:5000/api/analytics`
+  - `GET http://localhost:5000/api/confusion`
 
-### Split Ratios
-
-| Split | Ratio |
-|-------|-------|
-| Train | 75% |
-| Validation | 15% |
-| Test | 10% |
-
-### Augmentation Strategy
-
-Applied during training to improve generalisation across real-world capture conditions:
-
-| Technique | Value |
-|-----------|-------|
-| Rotation | ±25° |
-| Width / Height shift | 15% |
-| Zoom | 25% |
-| Shear | 15% |
-| Brightness | 0.6× – 1.4× |
-| Horizontal flip | Enabled |
-| Fill mode | Nearest |
-
----
-
-## Machine Learning Approach
-
-### Model Architecture
-
-- **Backbone**: MobileNetV2 pretrained on ImageNet (frozen during Phase 1)
-- **Input**: 224×224 RGB images, preprocessed with `mobilenet_v2.preprocess_input`
-- **Classification Head**:
-  - GlobalAveragePooling2D
-  - BatchNormalization → Dense(256, ReLU) → Dropout(0.4)
-  - Dense(128, ReLU) → BatchNormalization → Dropout(0.3)
-  - Dense(10, Softmax)
-
-### Two-Phase Training Strategy
-
-**Phase 1 — Head Training**
-The MobileNetV2 backbone is fully frozen. Only the custom classification head is trained.
-- Optimizer: Adam (lr = 0.001)
-- Loss: Categorical Crossentropy with label smoothing (0.1)
-- Callbacks: EarlyStopping (patience=4), ReduceLROnPlateau (factor=0.25)
-
-**Phase 2 — Fine-Tuning**
-The last 60 layers of the backbone are unfrozen for domain adaptation.
-- Optimizer: Adam (lr = 1e-5)
-- Same loss and callbacks as Phase 1
-
-Label smoothing is applied in both phases to reduce overconfidence and improve calibration on unseen images.
-
-### Confidence-Tiered Prediction Intelligence
-
-Every prediction is classified into one of three tiers based on the softmax confidence score:
-
-| Tier | Threshold | Behaviour |
-|------|-----------|-----------|
-| `strong` | ≥ 0.75 | Full prediction returned, no alternatives |
-| `moderate` | 0.45 – 0.74 | Prediction returned with top-3 alternatives and a verification message |
-| `weak` | < 0.45 | Prediction returned with top-3 alternatives and a recapture advisory |
-
-This tiered system prevents silent misclassification and gives downstream consumers actionable signal about prediction reliability.
-
-### Model Evaluation
-
-`evaluate_model.py` generates a full classification report and confusion matrix heatmap (`confusion_matrix_robust_v1.png`) using scikit-learn, enabling per-class precision, recall, and F1 analysis.
-
----
-
-## Backend Intelligence Features
-
-### Prediction Controller (`predictController.js`)
-- Accepts image upload via `multipart/form-data`
-- Forwards to FastAPI ML microservice using `mlService.js`
-- Persists full prediction payload to MongoDB regardless of confidence tier
-- Returns the complete ML response to the client
-
-### Analytics API (`analyticsController.js`)
-Computes live model reliability metrics from stored prediction history:
-
-```json
-{
-  "total_predictions": 120,
-  "strong_predictions": 89,
-  "moderate_predictions": 21,
-  "weak_predictions": 10,
-  "weak_prediction_rate": "8.33 %",
-  "model_reliability_score": "91.67"
-}
-```
-
-### Confusion Trend Detection (`confusionController.js`)
-Analyses all `weak` predictions and maps which device pairs the model most frequently confuses:
-
-```json
-{
-  "confusion_trends": {
-    "Television ↔ Monitor": 4,
-    "Mouse ↔ Keyboard": 2
-  }
-}
-```
-
-This data can directly inform future dataset augmentation and retraining priorities.
-
-### Prediction History (`historyController.js`)
-Returns the 20 most recent predictions sorted by timestamp, including full device metadata, confidence, and alternatives — suitable for audit, review, or active learning pipelines.
-
----
-
-## Knowledge Intelligence Layer
-
-`ewaste_knowledge.py` is a structured domain knowledge base covering all 10 device classes. Every prediction response is enriched with the following fields:
-
-| Field | Description |
-|-------|-------------|
-| `hazard.level` | Low / Medium / High |
-| `hazard.reason` | Human-readable explanation of the hazard |
-| `metals.dominant` | Primary recoverable metal |
-| `metals.composition` | Percentage breakdown of all metals present |
-| `recyclability.status` | Recyclability classification |
-| `recyclability.method` | Step-by-step recommended processing method |
-| `environmental_impact` | Risk to soil, water, or air if improperly disposed |
-| `reuse` | Reuse or refurbishment potential |
-| `user_guidance` | Actionable disposal instruction for the end user |
-
-Example — PCB:
-```json
-{
-  "hazard": { "level": "High", "reason": "Contains heavy metals and toxic solder materials" },
-  "metals": { "dominant": "Copper", "composition": { "Copper": "20-30%", "Gold": "0.1-0.3%", "Silver": "0.3-0.6%", "Tin": "5-10%" } },
-  "recyclability": { "status": "Highly recyclable", "method": "Mechanical shredding → smelting → precious metal refining" },
-  "environmental_impact": "Toxic fumes may form if burnt improperly.",
-  "reuse": "Component harvesting possible for repairs.",
-  "user_guidance": "Always send to certified recyclers."
-}
-```
-
----
-
-## API Design Overview
-
-### Base URLs
-- ML Microservice: `http://localhost:8000`
-- Node.js Backend: `http://localhost:5000`
-
-### Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | ML server health check |
-| `POST` | `/predict` | Direct ML inference (FastAPI) — accepts `multipart/form-data` with `file` field |
-| `POST` | `/api/predict` | Primary prediction endpoint (Node.js) — accepts `multipart/form-data` with `image` field |
-| `GET` | `/api/history` | Returns last 20 predictions from MongoDB |
-| `GET` | `/api/analytics` | Returns model reliability score and prediction tier breakdown |
-| `GET` | `/api/confusion` | Returns device confusion trend map from weak predictions |
-
-### Sample Prediction Response
-
-```json
-{
-  "success": true,
-  "prediction_type": "strong",
-  "prediction": {
-    "device": "PCB",
-    "confidence": 0.91,
-    "hazard": { "level": "High", "reason": "Contains heavy metals and toxic solder materials" },
-    "metals": { "dominant": "Copper", "composition": { "Copper": "20-30%", "Gold": "0.1-0.3%" } },
-    "recyclability": { "status": "Highly recyclable", "method": "Mechanical shredding → smelting → precious metal refining" },
-    "environmental_impact": "Toxic fumes may form if burnt improperly.",
-    "reuse": "Component harvesting possible for repairs.",
-    "user_guidance": "Always send to certified recyclers."
-  }
-}
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Deep Learning | TensorFlow 2.x, Keras |
-| ML Microservice | FastAPI, Uvicorn, Pillow |
-| Backend API | Node.js, Express.js 5 |
-| File Upload | Multer |
-| HTTP Client | Axios |
-| Database | MongoDB (local), Mongoose ODM |
-| Data Pipeline | Python, icrawler (Bing), scikit-learn |
-| Evaluation | scikit-learn, Matplotlib, Seaborn |
-| Frontend (Planned) | React.js |
-
----
-
-## How to Run the Project
+## Setup and Run
 
 ### Prerequisites
 
 - Python 3.9+
 - Node.js 18+
-- MongoDB running locally on port `27017`
+- MongoDB running on `localhost:27017`
 
-### Step 1 — Install Python Dependencies
+### 1) ML service setup
 
-```bash
-pip install tensorflow fastapi uvicorn pillow numpy scikit-learn matplotlib seaborn icrawler
+```powershell
+cd workspace
+pip install tensorflow fastapi uvicorn pillow numpy scikit-learn matplotlib seaborn icrawler pymongo
+python train_pro.py  # optional if model already present
+uvicorn ml_server:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### Step 2 — Train the Model
+### 2) Backend setup
 
-```bash
-cd modified-dataset/workspace
-python train_pro.py
-```
-
-This produces `ewaste_model_robust_v1.keras` in the workspace directory.
-
-### Step 3 — Start the FastAPI ML Microservice
-
-```bash
-cd modified-dataset/workspace
-uvicorn ml_server:app --host 127.0.0.1 --port 8000
-```
-
-Verify at: `http://localhost:8000/`
-
-### Step 4 — Install Node.js Dependencies
-
-```bash
-cd modified-dataset/backend
+```powershell
+cd backend
 npm install
-```
-
-### Step 5 — Start the Node.js Backend
-
-```bash
 node server.js
 ```
 
-Backend runs on: `http://localhost:5000`
+### 3) Frontend setup
 
-### Step 6 — Test the Prediction API
-
-```bash
-curl -X POST http://localhost:5000/api/predict \
-  -F "image=@/path/to/your/image.jpg"
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
-### Step 7 — Test Analytics Endpoints
+### 4) Quick API test
 
 ```bash
+curl -X POST http://localhost:5000/api/predict -F "image=@/path/to/image.jpg"
+curl http://localhost:5000/api/history
 curl http://localhost:5000/api/analytics
 curl http://localhost:5000/api/confusion
-curl http://localhost:5000/api/history
 ```
 
----
+## Testing and Validation
 
-## Project Structure
+- Run inference tests via frontend UI or `curl`.
+- Use `workspace/evaluate_model.py` for offline metrics.
+- Confirm MongoDB entries in `predictions` collection.
 
-```
-modified-dataset/
-├── workspace/
-│   ├── robust_pipeline/
-│   │   ├── bulk_bing_crawler.py       # Bing image crawler for dataset expansion
-│   │   └── prepare_robust_dataset.py  # Merges and re-splits datasets
-│   ├── final_dataset/                 # train / val / test splits
-│   ├── train_pro.py                   # Two-phase transfer learning pipeline
-│   ├── evaluate_model.py              # Confusion matrix + classification report
-│   ├── ml_server.py                   # FastAPI inference server
-│   ├── predict.py                     # CLI prediction utility
-│   ├── ewaste_knowledge.py            # Domain knowledge base
-│   └── ewaste_model_robust_v1.keras   # Trained model weights
-│
-├── backend/
-│   ├── config/db.js                   # MongoDB connection
-│   ├── models/Prediction.js           # Mongoose schema
-│   ├── controllers/
-│   │   ├── predictController.js       # Prediction + DB persistence
-│   │   ├── historyController.js       # Prediction history retrieval
-│   │   ├── analyticsController.js     # Model reliability analytics
-│   │   └── confusionController.js     # Confusion trend detection
-│   ├── routes/                        # Express route definitions
-│   ├── services/mlService.js          # FastAPI proxy service
-│   └── server.js                      # Express app entry point
-│
-└── README.md
-```
+## Future Enhancements
 
----
-
-## Future Scope
-
-| Enhancement | Description |
-|-------------|-------------|
-| YOLO Object Detection | Upgrade from classification to real-time object detection, enabling multi-device identification in a single frame |
-| Dataset Scaling | Expand to 50+ device categories with larger per-class image counts using automated crawling pipelines |
-| Active Learning Loop | Use weak prediction logs from MongoDB to automatically flag uncertain samples for human labelling and retraining |
-| React Dashboard | Visualise prediction history, analytics charts, confusion heatmaps, and metal composition breakdowns in a web UI |
-| Cloud Deployment | Containerise ML microservice and backend with Docker; deploy on AWS ECS or EC2 with S3 for image storage |
-| Mobile Integration | Expose prediction API to a mobile app for field-level e-waste scanning at collection centres |
-
----
+- Add object detection for multi-device frames (e.g., YOLO)
+- Add active learning from weak predictions
+- Dashboard charts and flood maps
+- Docker Compose with separate `ml-service`, `api`, `frontend`, and `mongo`
+- Add unit/integration tests for backend and frontend
 
 ## License
 
-This project is developed for academic and research purposes.
+Academic/research use.
