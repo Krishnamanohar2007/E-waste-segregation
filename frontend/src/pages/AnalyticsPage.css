@@ -4,6 +4,14 @@
     gap: 2rem;
 }
 
+.stat-card-anim {
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);

@@ -1,0 +1,399 @@
+/* ============================================================
+   PredictionCard — SaaS-grade styles
+   ============================================================ */
+
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-card-in {
+  animation: cardSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.prediction-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.07);
+}
+
+/* ------- Smart Banners ------- */
+.smart-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.banner-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.banner-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+/* ------- Header ------- */
+.pc-header {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pc-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pc-device-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* ------- Confidence ------- */
+.pc-confidence-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pc-confidence-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.confidence-value {
+  font-size: 1rem;
+}
+
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger  { color: var(--danger); }
+
+.confidence-bar-container {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.confidence-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confidence-bar.success { background: var(--success); }
+.confidence-bar.warning { background: var(--warning); }
+.confidence-bar.danger  { background: var(--danger); }
+
+/* ------- Body ------- */
+.pc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ------- Guidance block ------- */
+.user-guidance-box {
+  margin: 1.5rem 2rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.07), rgba(99, 102, 241, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-left: 4px solid #3b82f6;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #2563eb;
+  margin-bottom: 0.65rem;
+}
+
+.box-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.guidance-text {
+  margin: 0;
+  font-size: 0.975rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+/* ------- Hazard row ------- */
+.hazard-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.hazard-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hazard-reason {
+  width: 100%;
+  margin: 0.25rem 0 0;
+}
+
+/* ------- Collapsible sections ------- */
+.collapsible-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.collapsible-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.collapsible-header:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.collapsible-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chevron-icon {
+  color: var(--text-muted);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.collapsible-section.open .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.collapsible-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.collapsible-inner {
+  padding: 0 2rem 1.5rem;
+}
+
+/* ------- Section content ------- */
+.clean-paragraph {
+  margin: 0;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.recycle-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.reuse-inline {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.07);
+}
+
+.info-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+/* ------- Metal Composition ------- */
+.metal-header-row {
+  margin-bottom: 0.75rem;
+}
+
+.dominant-chip {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: #065f46;
+}
+
+.composition-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.modern-table td {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
+}
+
+.modern-table tr:last-child td {
+  border-bottom: none;
+}
+
+.highlighted-row td {
+  font-weight: 700;
+  color: var(--text-primary) !important;
+}
+
+.font-medium { font-weight: 500; }
+.text-right  { text-align: right; }
+
+/* ------- Alternatives ------- */
+.alternatives-section {
+  padding: 1rem 2rem 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.alternatives-section h4 {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: text-bottom;
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.alt-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.45rem 0.9rem;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.alt-chip:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.chip-confidence {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.5rem;
+  border-radius: 12px;
+}
+
+/* ------- Badges (shared) ------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge.success {
+  background: var(--success-bg, #dcfce7);
+  color: #065f46;
+}
+
+.badge.warning {
+  background: var(--warning-bg, #fef3c7);
+  color: #92400e;
+}
+
+.badge.danger {
+  background: var(--danger-bg, #fee2e2);
+  color: #991b1b;
+}
+
+/* ------- Responsive ------- */
+@media (max-width: 640px) {
+  .pc-header { padding: 1.5rem 1.25rem 1.25rem; }
+  .pc-device-name { font-size: 1.5rem; }
+  .user-guidance-box { margin: 1rem 1.25rem; }
+  .hazard-row { padding: 0.75rem 1.25rem; }
+  .collapsible-header { padding: 0.875rem 1.25rem; }
+  .collapsible-inner  { padding: 0 1.25rem 1.25rem; }
+  .alternatives-section { padding: 0.75rem 1.25rem 1.25rem; }
+}

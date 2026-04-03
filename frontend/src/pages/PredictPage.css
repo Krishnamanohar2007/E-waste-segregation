@@ -396,3 +396,14 @@
     border-radius: 9999px;
     font-size: 0.75rem;
 }
+
+
+.drop-zone.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.analyze-btn.loading {
+    opacity: 0.9;
+    cursor: not-allowed;
+}

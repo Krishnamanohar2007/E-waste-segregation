@@ -1,3 +1,26 @@
+.badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge.warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
 .history-page {
     display: flex;
     flex-direction: column;
@@ -59,7 +82,17 @@
 }
 
 .filter-btn {
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
     background: var(--surface-solid);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--color-primary);
 }
 
 .table-responsive {
@@ -79,8 +112,11 @@
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: rgba(248, 250, 252, 0.5);
+    background: rgba(248, 250, 252, 0.95);
     border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .history-table td {
@@ -89,11 +125,16 @@
 }
 
 .table-row-hover {
-    transition: background-color var(--transition-fast);
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .table-row-hover:hover {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.anim-row {
+    animation: rowFadeIn 0.35s ease both;
 }
 
 .loading-state,
@@ -102,8 +143,31 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 5rem 2rem;
     gap: 1rem;
+    text-align: center;
+}
+
+.empty-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    max-width: 320px;
+    line-height: 1.6;
 }
 
 .spinner-large {

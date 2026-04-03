@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Leaf, Search, History, PieChart, Activity, Menu } from 'lucide-react';
+import { Leaf, Search, History, PieChart, Activity, Menu, X } from 'lucide-react';
 import './MainLayout.css';
 
 interface MainLayoutProps {
@@ -8,31 +8,44 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
   return (
     <div className="app-container">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={closeSidebar} aria-hidden="true" />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar glass-panel">
+      <aside className={`sidebar glass-panel ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo-icon"><Leaf size={24} /></div>
             <h2>EcoSort AI</h2>
           </div>
+          <button className="sidebar-close-btn" onClick={closeSidebar} aria-label="Close menu">
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink to="/predict" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/predict" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Search size={20} />
             <span>Predict Analysis</span>
           </NavLink>
-          <NavLink to="/history" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/history" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <History size={20} />
             <span>History</span>
           </NavLink>
-          <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/analytics" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <PieChart size={20} />
             <span>Analytics</span>
           </NavLink>
-          <NavLink to="/confusion" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <NavLink to="/confusion" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Activity size={20} />
             <span>Confusion Insights</span>
           </NavLink>
@@ -49,7 +62,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Main Content Area */}
       <main className="main-content">
         <header className="top-navbar glass-panel">
-          <button className="mobile-menu-btn">
+          <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Open menu">
             <Menu size={24} />
           </button>
           <div className="navbar-title">
