@@ -174,13 +174,33 @@ const AnalyticsPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="analytics-page animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-                <div style={{ width: 40, height: 40, border: '4px solid rgba(16,185,129,0.2)', borderTopColor: 'var(--color-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <div className="analytics-page animate-fade-in">
+                <div className="loading-state" style={{ height: '60vh', background: 'transparent', border: 'none' }}>
+                    <div className="spinner-large"></div>
+                    <p className="text-secondary">Aggregating analytics data...</p>
+                </div>
             </div>
         );
     }
 
-    if (!analytics) return <div className="analytics-page">No analytics data available</div>;
+    if (!analytics) {
+        return (
+            <div className="analytics-page animate-fade-in">
+                <div className="empty-state" style={{ height: '60vh', background: 'transparent', border: 'none' }}>
+                    <div className="empty-icon-wrap">
+                        <Activity size={40} />
+                    </div>
+                    <h3>Analytics Unavailable</h3>
+                    <p className="text-secondary">
+                        Unable to fetch insights. Check your connection or run more predictions first.
+                    </p>
+                    <button className="btn btn-primary mt-4" onClick={loadData}>
+                        Retry Fetch
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const targets = {
         accuracy: analytics.model_reliability_score || 0,

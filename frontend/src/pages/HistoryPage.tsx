@@ -90,7 +90,7 @@ const HistoryPage: React.FC = () => {
                 </button>
             </div>
 
-            <div className="glass-panel history-table-container">
+            <div className="history-cards-container">
 
                 <div className="table-controls">
                     <div className="search-box">
@@ -133,44 +133,42 @@ const HistoryPage: React.FC = () => {
                         </p>
                     </div>
                 ) : (
-                    <div className="table-responsive">
-                        <table className="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Device</th>
-                                    <th>Type</th>
-                                    <th>Confidence</th>
-                                    <th>Date</th>
-                                    <th>Image Name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredHistory.map((item, idx) => (
-                                    <tr
-                                        key={item.id}
-                                        className="table-row-hover anim-row"
-                                        style={{ animationDelay: `${idx * 40}ms` }}
-                                    >
-                                        <td className="font-medium text-main">{item.device}</td>
-
-                                        <td>
-                                            <span className={getBadgeClass(item.type)}>
-                                                {item.type}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            <span className={getBadgeClass(item.type)}>
-                                                {item.confidence.toFixed(1)}%
-                                            </span>
-                                        </td>
-
-                                        <td className="text-muted text-sm">{formatDate(item.date)}</td>
-                                        <td className="text-muted text-sm">{item.image}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="history-cards-grid">
+                        {filteredHistory.map((item, idx) => (
+                            <div
+                                key={item.id}
+                                className="history-card glass-card anim-row"
+                                style={{ animationDelay: `${idx * 60}ms` }}
+                            >
+                                <div className="history-card-image-bg"></div>
+                                <div className="history-card-header">
+                                    <div className="device-info">
+                                        <div className="device-icon-wrap">
+                                            <Inbox size={20} />
+                                        </div>
+                                        <div>
+                                            <h3>{item.device}</h3>
+                                            <span className="card-meta">{formatDate(item.date)}</span>
+                                        </div>
+                                    </div>
+                                    <span className={getBadgeClass(item.type)}>
+                                        {item.type}
+                                    </span>
+                                </div>
+                                <div className="history-card-body">
+                                    <div className="history-stat-row">
+                                        <span className="history-stat-label">Confidence Score</span>
+                                        <strong className={`history-stat-value text-${getBadgeClass(item.type).split(' ')[1]}`}>
+                                            {item.confidence.toFixed(1)}%
+                                        </strong>
+                                    </div>
+                                    <div className="history-stat-row">
+                                        <span className="history-stat-label">Image File</span>
+                                        <span className="history-stat-value text-muted">{item.image}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
 

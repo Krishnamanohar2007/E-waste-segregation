@@ -30,8 +30,30 @@ const ConfusionInsightsPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="confusion-page animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-                <div style={{ width: 40, height: 40, border: '4px solid rgba(16,185,129,0.2)', borderTopColor: 'var(--color-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <div className="confusion-page animate-fade-in">
+                <div className="loading-state" style={{ height: '60vh', background: 'transparent', border: 'none' }}>
+                    <div className="spinner-large"></div>
+                    <p className="text-secondary">Gathering confusion metrics...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!confusionData || confusionData.length === 0) {
+        return (
+            <div className="confusion-page animate-fade-in">
+                <div className="empty-state" style={{ height: '60vh', background: 'transparent', border: 'none' }}>
+                    <div className="empty-icon-wrap">
+                        <Network size={40} />
+                    </div>
+                    <h3>No Confusion Data</h3>
+                    <p className="text-secondary">
+                        The model hasn't encountered enough overlapping predictions to generate insights.
+                    </p>
+                    <button className="btn btn-outline mt-4" onClick={loadData}>
+                        Refresh Data
+                    </button>
+                </div>
             </div>
         );
     }

@@ -206,7 +206,23 @@ const PredictPage: React.FC = () => {
                 </div>
 
                 {/* Results Section */}
-                {result && (
+                {isLoading && (
+                    <div className="prediction-card glass-panel animate-card-in" style={{ padding: '2.5rem', opacity: 0.8 }}>
+                        <div className="skeleton-block" style={{ height: '36px', width: '40%', marginBottom: '2rem', borderRadius: '8px' }}></div>
+                        <div className="skeleton-block" style={{ height: '24px', width: '100%', marginBottom: '1rem', borderRadius: '8px' }}></div>
+                        <div className="skeleton-block" style={{ height: '18px', width: '85%', marginBottom: '2.5rem', borderRadius: '8px' }}></div>
+                        
+                        <div className="skeleton-block" style={{ height: '54px', width: '100%', marginBottom: '1.5rem', borderRadius: '12px' }}></div>
+                        <div className="skeleton-block" style={{ height: '54px', width: '100%', marginBottom: '1.5rem', borderRadius: '12px' }}></div>
+                        
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                            <div className="skeleton-block" style={{ height: '32px', width: '100px', borderRadius: '20px' }}></div>
+                            <div className="skeleton-block" style={{ height: '32px', width: '120px', borderRadius: '20px' }}></div>
+                        </div>
+                    </div>
+                )}
+                
+                {!isLoading && result && (
                     <PredictionCard data={result} />
                 )}
 
