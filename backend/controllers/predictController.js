@@ -19,7 +19,9 @@ exports.predictDevice = async (req, res) => {
                 prediction_type: result.prediction_type,
                 prediction: result.prediction,
                 alternatives: result.alternatives || [],
-                imageName: req.file.originalname
+                top3: result.top3 || [],
+                imageName: req.file.originalname,
+                imageBase64: req.file.buffer.toString('base64')
             });
         } catch (dbErr) {
             console.log("DB Save Error:", dbErr.message);

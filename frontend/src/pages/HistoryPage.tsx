@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, RefreshCw, Inbox } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Search, RefreshCw, Inbox, X, Info, Image as ImageIcon, AlertTriangle, Recycle } from 'lucide-react';
 import { fetchPredictionHistory } from '../services/api';
 import Toast, { useToast } from '../components/Toast';
 import './HistoryPage.css';
@@ -12,6 +13,9 @@ const HistoryPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedType, setSelectedType] = useState('');
 
+    // Modal state
+    const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
     useEffect(() => {
         loadHistory();
     }, []);
@@ -19,6 +23,18 @@ const HistoryPage: React.FC = () => {
     useEffect(() => {
         applyFilters();
     }, [searchTerm, selectedType, history]);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (selectedItem) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [selectedItem]);
 
     const loadHistory = async () => {
         setLoading(true);
@@ -35,7 +51,14 @@ const HistoryPage: React.FC = () => {
                     type: h.prediction_type || 'unknown',
                     confidence: p?.confidence ? p.confidence * 100 : 0,
                     date: h.createdAt || new Date().toISOString(),
-                    image: h.imageName || 'N/A'
+                    image: h.imageName || 'N/A',
+                    imageBase64: h.imageBase64 || null,
+                    hazard: p?.hazard || {},
+                    metals: p?.metals || {},
+                    recyclability: p?.recyclability || {},
+                    environmentalImpact: p?.environmental_impact || 'No data',
+                    reuse: p?.reuse || 'No data',
+                    userGuidance: p?.user_guidance || 'No data',
                 };
             });
 
@@ -74,6 +97,14 @@ const HistoryPage: React.FC = () => {
         return 'badge danger';
     };
 
+    const handleCardClick = (item: any) => {
+        setSelectedItem(item);
+    };
+
+    const closeModal = () => {
+        setSelectedItem(null);
+    };
+
     return (
         <div className="history-page animate-fade-in">
             <Toast toasts={toasts} onDismiss={dismissToast} />
@@ -82,7 +113,7 @@ const HistoryPage: React.FC = () => {
                 <div>
                     <h1>Prediction History</h1>
                     <p className="text-secondary text-lg">
-                        Review past e-waste classifications and confidence scores.
+                        Review past e-waste classifications and confidence scores. Click on an item for precise details.
                     </p>
                 </div>
                 <button className="btn btn-outline" onClick={loadHistory}>
@@ -139,12 +170,17 @@ const HistoryPage: React.FC = () => {
                                 key={item.id}
                                 className="history-card glass-card anim-row"
                                 style={{ animationDelay: `${idx * 60}ms` }}
+                                onClick={() => handleCardClick(item)}
                             >
                                 <div className="history-card-image-bg"></div>
                                 <div className="history-card-header">
                                     <div className="device-info">
                                         <div className="device-icon-wrap">
-                                            <Inbox size={20} />
+                                            {item.imageBase64 ? (
+                                                 <img src={`data:image/jpeg;base64,${item.imageBase64}`} alt="thumb" className="mini-thumb" />
+                                            ) : (
+                                                 <Inbox size={20} />
+                                            )}
                                         </div>
                                         <div>
                                             <h3>{item.device}</h3>
@@ -164,7 +200,7 @@ const HistoryPage: React.FC = () => {
                                     </div>
                                     <div className="history-stat-row">
                                         <span className="history-stat-label">Image File</span>
-                                        <span className="history-stat-value text-muted">{item.image}</span>
+                                        <span className="history-stat-value text-muted truncate-text">{item.image}</span>
                                     </div>
                                 </div>
                             </div>
@@ -173,6 +209,110 @@ const HistoryPage: React.FC = () => {
                 )}
 
             </div>
+
+            {/* History Details Modal via Portal */}
+            {selectedItem && createPortal(
+                <div className="modal-overlay animate-fade-in" onClick={closeModal}>
+                    <div className="modal-content glass-panel bounce-in" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close-btn" onClick={closeModal}>
+                            <X size={24} />
+                        </button>
+                        
+                        <div className="modal-header">
+                            <div>
+                                <h2>{selectedItem.device}</h2>
+                                <span className={getBadgeClass(selectedItem.type)}>{selectedItem.type} Confidence ({selectedItem.confidence.toFixed(1)}%)</span>
+                            </div>
+                        </div>
+                        
+                        <div className="modal-body-scrollable new-clumsy-fix">
+                            
+                            <div className="modal-top-section">
+                                <div className="modal-image-container">
+                                    {selectedItem.imageBase64 ? (
+                                        <img 
+                                            src={`data:image/jpeg;base64,${selectedItem.imageBase64}`} 
+                                            alt={selectedItem.device} 
+                                            className="modal-preview-img"
+                                        />
+                                    ) : (
+                                        <div className="no-image-placeholder">
+                                            <ImageIcon size={48} className="text-muted mb-2" />
+                                            <p className="text-secondary">Image not available</p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="modal-quick-stats">
+                                    <div className="stat-box">
+                                        <span className="stat-label">Date Captured</span>
+                                        <strong className="stat-value">{formatDate(selectedItem.date)}</strong>
+                                    </div>
+                                    <div className="stat-box">
+                                        <span className="stat-label">Hazard Level</span>
+                                        <strong className={`stat-value hazard-${selectedItem.hazard?.level?.toLowerCase() || 'unknown'}`}>
+                                            {selectedItem.hazard?.level || 'N/A'}
+                                        </strong>
+                                    </div>
+                                    <div className="stat-box">
+                                        <span className="stat-label">Recyclability</span>
+                                        <strong className="stat-value">{selectedItem.recyclability?.status || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="modal-details-grid sleek-grid">
+                                
+                                <div className="detail-section sleek">
+                                    <h4><Info size={18}/> About & Impact</h4>
+                                    <div className="detail-row vertical">
+                                        <span>Environmental Impact</span>
+                                        <p>{selectedItem.environmentalImpact}</p>
+                                    </div>
+                                    <div className="detail-row vertical mt-2">
+                                        <span>User Guidance</span>
+                                        <p className="text-highlight">{selectedItem.userGuidance}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-section sleek">
+                                    <h4><AlertTriangle size={18}/> Hazards & Metals</h4>
+                                    <div className="detail-row vertical">
+                                        <span>Why is this hazardous?</span>
+                                        <p>{selectedItem.hazard?.reason || 'No specific hazard identified.'}</p>
+                                    </div>
+                                    
+                                    <div className="detail-row vertical mt-2">
+                                        <span>Material Composition ({selectedItem.metals?.dominant || 'N/A'})</span>
+                                        {selectedItem.metals?.composition && (
+                                            <div className="composition-bars mt-2">
+                                                {Object.entries(selectedItem.metals.composition).map(([key, val]: any) => (
+                                                    <div key={key} className="comp-item">
+                                                        <div className="comp-label"><span>{key}</span><span>{val}%</span></div>
+                                                        <div className="comp-bar-bg">
+                                                            <div className="comp-bar-fill" style={{width: `${val}%`}}></div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="detail-section sleek full-width">
+                                    <h4><Recycle size={18}/> Recycling Methodology</h4>
+                                    <div className="detail-row vertical">
+                                        <span>Process</span>
+                                        <p>{selectedItem.recyclability?.method || 'Method not specified'}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

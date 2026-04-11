@@ -4,6 +4,7 @@ import PredictPage from './pages/PredictPage';
 import HistoryPage from './pages/HistoryPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ConfusionInsightsPage from './pages/ConfusionInsightsPage';
+import ReportsPage from './pages/ReportsPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/confusion" element={<ConfusionInsightsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Routes>
       </MainLayout>
     </Router>

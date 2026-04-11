@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Leaf, Search, History, PieChart, Activity, Menu, X } from 'lucide-react';
+import { Leaf, Search, History, PieChart, Activity, Menu, X, BarChart2 } from 'lucide-react';
 import './MainLayout.css';
 
 interface MainLayoutProps {
@@ -48,6 +48,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <NavLink to="/confusion" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <Activity size={20} />
             <span>Confusion Insights</span>
+          </NavLink>
+          <NavLink to="/reports" onClick={closeSidebar} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <BarChart2 size={20} />
+            <span>Weekly Report</span>
           </NavLink>
         </nav>
 

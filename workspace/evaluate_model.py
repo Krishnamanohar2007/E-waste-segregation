@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 IMG_SIZE = (224,224)
 BATCH_SIZE = 32
 
-TEST_DIR = "final_dataset/test"
+TEST_DIR = "robust_pipeline/dataset_final/test"
 
 datagen = ImageDataGenerator(
     preprocessing_function=preprocess_input
@@ -24,9 +24,9 @@ test_gen = datagen.flow_from_directory(
     shuffle=False
 )
 
-model = tf.keras.models.load_model("ewaste_model_robust_v1.keras")
+model = tf.keras.models.load_model("ewaste_model_robust_v2.keras")
 
-print("\n🔍 Evaluating ROBUST V1 model...\n")
+print("\n🔍 Evaluating ROBUST V2 model...\n")
 
 loss, acc = model.evaluate(test_gen)
 print(f"\n✅ Test Accuracy: {acc*100:.2f}%")
@@ -43,11 +43,11 @@ sns.heatmap(cm, annot=True, fmt="d",
             yticklabels=test_gen.class_indices.keys(),
             cmap="Blues")
 
-plt.title("Confusion Matrix — Robust V1")
+plt.title("Confusion Matrix — Robust V2")
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
 
-plt.savefig("confusion_matrix_robust_v1.png", dpi=300, bbox_inches="tight")
+plt.savefig("confusion_matrix_robust_v2.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print("\n📊 Classification Report:\n")

@@ -8,6 +8,7 @@ const predictRoute = require("./routes/predictRoute");
 const historyRoute = require("./routes/historyRoute");
 const analyticsRoute = require("./routes/analyticsRoute");
 const confusionRoute = require("./routes/confusionRoute");
+const reportsRoute = require("./routes/reportsRoute");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/api", predictRoute);
 app.use("/api", historyRoute);
 app.use("/api/analytics", analyticsRoute);
 app.use("/api/confusion", confusionRoute);
+app.use("/api/reports", reportsRoute);
 
 app.get("/", (req, res) => {
     res.send("E-Waste Backend Running");

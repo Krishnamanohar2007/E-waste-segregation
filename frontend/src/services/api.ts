@@ -36,4 +36,9 @@ export const fetchConfusionInsights = async () => {
     return response.data;
 };
 
+export const fetchWeeklyReport = async () => {
+    const response = await api.get('/reports/weekly');
+    return response.data;
+};
+
 export default api;

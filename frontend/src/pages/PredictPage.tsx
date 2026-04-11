@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Search } from 'lucide-react';
+import { UploadCloud, Search, AlertTriangle } from 'lucide-react';
 import { predictEWaste } from '../services/api';
 import PredictionCard from '../components/PredictionCard';
 import Toast, { useToast } from '../components/Toast';
@@ -74,8 +74,14 @@ const PredictPage: React.FC = () => {
                         ? 65
                         : 45);
 
+            const deviceName = p.device || data.device || 'Unknown Device';
+            const isUnknownEvent = data.label === 'Unknown' || deviceName === 'Unknown';
+
             setResult({
-                device: p.device || data.device || 'Unknown Device',
+                isUnknown: isUnknownEvent,
+                label: data.label,
+                message: data.message,
+                device: deviceName,
                 confidence: confidence,
                 prediction_type: data.prediction_type || 'weak',
 
@@ -113,7 +119,12 @@ const PredictPage: React.FC = () => {
 
                 alternatives: p.alternatives || data.alternatives || []
             });
-            addToast('Analysis complete! Review the prediction details below.', 'success');
+            
+            if (isUnknownEvent) {
+                addToast('⚠️ Not an e-waste item or unclear image', 'error');
+            } else {
+                addToast('Analysis complete! Review the prediction details below.', 'success');
+            }
 
         } catch (err: any) {
             addToast('Analysis failed. Please check your connection and try again.', 'error');
@@ -223,7 +234,20 @@ const PredictPage: React.FC = () => {
                 )}
                 
                 {!isLoading && result && (
-                    <PredictionCard data={result} />
+                    result.isUnknown ? (
+                        <div className="unknown-card glass-panel animate-card-in">
+                            <div className="unknown-icon-wrapper">
+                                <AlertTriangle size={48} color="var(--warning)" />
+                            </div>
+                            <h3>Cannot Analyze</h3>
+                            <p className="text-muted">
+                                Please upload a clear image of an electronic waste item. 
+                                The AI was unable to detect any recognizable components.
+                            </p>
+                        </div>
+                    ) : (
+                        <PredictionCard data={result} />
+                    )
                 )}
 
             </div>

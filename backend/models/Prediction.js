@@ -29,8 +29,10 @@ const predictionSchema = new mongoose.Schema({
     },
 
     alternatives: Array,
+    top3: Array,
 
     imageName: String,
+    imageBase64: String, // Store image as base64 to show in history
 
     createdAt: {
         type: Date,
