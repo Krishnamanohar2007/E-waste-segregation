@@ -12,6 +12,7 @@ exports.predictDevice = async (req, res) => {
         }
 
         const result = await mlService.getPrediction(req.file);
+        console.log("ML RESPONSE:", result);
 
         // ⭐ SAVE HISTORY
         try {
