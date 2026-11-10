@@ -13,13 +13,23 @@ workspace/final_dataset/
 workspace/robust_pipeline/
 workspace/bing_dataset/
 workspace/dataset_raw/
+training/robust_pipeline/dataset_final/
+training/robust_pipeline/temp_others/
+training/robust_pipeline/bing_dataset/
+training/robust_pipeline/robust_dataset_v2/
 
 # =========================
 # MODEL WEIGHTS
 # =========================
 *.keras
+!ml-service/ewaste_model_robust_v2.keras
 *.h5
 *.pt
+
+# =========================
+# MONGODB BACKUP
+# =========================
+mongo-backup/
 
 # =========================
 # NODE / FRONTEND

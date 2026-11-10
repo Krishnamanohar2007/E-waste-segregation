@@ -7,7 +7,7 @@ exports.getPrediction = async (file) => {
     form.append("file", file.buffer, file.originalname);
 
     const response = await axios.post(
-        "http://127.0.0.1:8000/predict",
+        process.env.ML_SERVICE_URL || "http://127.0.0.1:8000/predict",
         form,
         { headers: form.getHeaders() }
     );

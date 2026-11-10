@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// Update with your actual backend URL or rely on proxy/vite setup
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
